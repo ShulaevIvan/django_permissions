@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -9,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer для пользователя."""
 
     class Meta:
+        
         model = User
         fields = ('id', 'username', 'first_name','last_name',)
 
@@ -19,6 +21,7 @@ class AdvertisementSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True,)
 
     class Meta:
+
         model = Advertisement
         fields = ('id', 'title', 'description', 'creator','status', 'created_at', )
 
@@ -31,7 +34,7 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
         counter_adv_user = Advertisement.objects.filter(creator=self.context['request'].user, status = 'OPEN').count()
 
-        if self.context['request'] == 'POST' or 'PATCH' and counter_adv_user >= 10:
+        if self.context['request'].method == 'POST' or 'PATCH' and data['status'] == 'OPEN' and counter_adv_user >= 10:
 
             raise ValidationError('Превышен лимит открытых объявлений (10)') 
 
