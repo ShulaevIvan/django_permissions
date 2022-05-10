@@ -7,6 +7,7 @@ from advertisements.models import Advertisement
 
 
 class UserSerializer(serializers.ModelSerializer):
+    
     """Serializer для пользователя."""
 
     class Meta:
@@ -28,12 +29,13 @@ class AdvertisementSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         validated_data['creator'] = self.context['request'].user
+        
         return super().create(validated_data)
 
     def validate(self, data):
-
+        
         counter_adv_user = Advertisement.objects.filter(creator=self.context['request'].user, status = 'OPEN').count()
-
+        
         if self.context['request'].method == 'POST' or 'PATCH' and data['status'] == 'OPEN' and counter_adv_user >= 10:
 
             raise ValidationError('Превышен лимит открытых объявлений (10)') 
